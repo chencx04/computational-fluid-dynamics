@@ -47,7 +47,7 @@ def plot_error_for_fdm():
     plt.xlabel('h')
     plt.ylabel('f_prime')
     plt.legend()
-    plt.show()
+    plt.savefig('result.png')
 
 plot_error_for_fdm()
 
