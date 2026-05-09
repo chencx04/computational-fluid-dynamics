@@ -196,5 +196,13 @@ def run_file(i, x_0):
         t1.calculate_order_of_accuracy_for_fdm(h_array = h_array, x0 = x_0)
         # 绘制双对数图，以计算 f'(x) 的误差阶数，选取步长范围为 0.0001 到 0.0101，步长为 0.01
 
+# 运行得到第1题的所有结果
+for i in range(7):
+    if i == 0:
+        pass
+    else:
+        for x_0 in [-1, 0]:
+            run_file(i=i, x_0=x_0)
 
-run_file(i=2,x_0=0)
+# 运行得到特定的结果
+# run_file(i=2,x_0=0)
