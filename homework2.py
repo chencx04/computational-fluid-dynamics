@@ -10,7 +10,7 @@ def solve_coefficient():
 
     b = np.array([0,1,0,0,0])
 
-    c = np.linalg.solve(a,b)
+    c = np.linalg.solve(a.T,b)
 
     print(c)
 
