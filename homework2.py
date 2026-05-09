@@ -24,7 +24,7 @@ class Task1():
         print(c)
 
     """ 计算差分格式的结果，并绘制图像（可选） """
-    def calculate_f_prime_with_one_side_nodes_fdm(isplot: int = 1, h_array: np.ndarray = np.linspace(0.05,1.05,101)):
+    def calculate_f_prime_with_one_side_nodes_fdm(self, isplot, h_array):
         # 定义一个步长 h 的数组
         # h_array = np.linspace(0.05,1.05,101)
         # 函数 f(x)
@@ -70,7 +70,7 @@ class Task1():
         return h_array, f_prime3, f_prime5, f_prime_analytical
 
 
-    def calculate_f_prime_with_symmetric_nodes_fdm(isplot: int = 1, h_array: np.ndarray = np.linspace(0.05,1.05,101)):
+    def calculate_f_prime_with_symmetric_nodes_fdm(self, isplot, h_array):
         # 定义一个步长 h 的数组
         # h_array = np.linspace(0.05,1.05,101)
         # 函数 f(x)
@@ -89,9 +89,9 @@ class Task1():
             x_1 = -h # x_{-1}
             x_2 = -2*h # x_{-2}
             # 3 节点模板的有限差分格式
-            f_prime3[i] = (f(x1) -f(x2))/(2*h)
+            f_prime3[i] = (f(x1) -f(x_1))/(2*h)
             # 5 节点模板的有限差分格式
-            f_prime5[i] = (8*f(x1) - f(x2) + 8*f(x_1) + f(x_2))/(14*h)
+            f_prime5[i] = (8*f(x1) - f(x2) - 8*f(x_1) + f(x_2))/(14*h)
         
         # plot error-h figure
         if isplot == 1:
@@ -142,7 +142,7 @@ class Task1():
         plt.savefig('order_of_accuracy_x0 = %.1f %.4f %.4f.png' % (x0, h_array[0], h_array[len(h_array)-1]))
 
     # 比较 x = -1 和 x = 0 的差分格式的误差大小
-    def compare_fdm_error_with_different_x0(self, h_array: np.ndarray = np.linspace(0.05,1.05,101)):
+    def compare_fdm_error_with_different_x0(self, h_array):
             _, f_prime3_1, f_prime5_1, f_prime_analytical_1 = self.calculate_f_prime_with_one_side_nodes_fdm(isplot=0, h_array=h_array)
             _, f_prime3_0, f_prime5_0, f_prime_analytical_0 = self.calculate_f_prime_with_symmetric_nodes_fdm(isplot=0, h_array=h_array)
             plt.close('all')
@@ -155,26 +155,29 @@ class Task1():
             plt.title('error of f_prime with different x0')
             plt.legend()
             plt.savefig('error_of_f_prime_with_different_x0.png')
+            plt.ylim(0,10)
+            plt.savefig('error_of_f_prime_with_different_x0_zoom.png')
 
  
 t1 = Task1()
 
 def run_file(i, x_0):
+    h_array = np.linspace(0.005,1.005,1001)
     if i == 0:
         t1.solve_coefficient()
         # 计算 5 节点模板的差分格式的系数
     elif i == 1 and x_0 == -1:
-        t1.calculate_f_prime_with_one_side_nodes_fdm(1)
-        t1.calculate_f_prime_with_one_side_nodes_fdm(2)
+        t1.calculate_f_prime_with_one_side_nodes_fdm(isplot=1, h_array=h_array)
+        t1.calculate_f_prime_with_one_side_nodes_fdm(isplot=2, h_array=h_array)
         # 绘制 f'(x = -1) 及与解析值的误差随 h 变化的图像
         # 包括 3 节点模板和 5 节点模板的有限差分格式，以及解析形式的导数
     elif i == 1 and x_0 == 0:
-        t1.calculate_f_prime_with_symmetric_nodes_fdm(1)
-        t1.calculate_f_prime_with_symmetric_nodes_fdm(2)
+        t1.calculate_f_prime_with_symmetric_nodes_fdm(isplot=1, h_array=h_array)
+        t1.calculate_f_prime_with_symmetric_nodes_fdm(isplot=2, h_array=h_array)
         # 绘制 f'(x = 0) 及与解析值的误差随 h 变化的图像
         # 包括 3 节点模板和 5 节点模板的有限差分格式，以及解析形式的导数
     elif i == 2:
-        t1.compare_fdm_error_with_different_x0()
+        t1.compare_fdm_error_with_different_x0(h_array=h_array)
         # 比较 x = -1 和 x = 0 的差分格式的误差
     elif i == 3:
         h_array = np.linspace(0.05,1.05,101)
@@ -194,4 +197,4 @@ def run_file(i, x_0):
         # 绘制双对数图，以计算 f'(x) 的误差阶数，选取步长范围为 0.0001 到 0.0101，步长为 0.01
 
 
-run_file(1,-1)
+run_file(i=2,x_0=0)
