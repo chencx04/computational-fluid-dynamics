@@ -164,13 +164,13 @@ def run_file(i, x_0):
         t1.solve_coefficient()
         # 计算 5 节点模板的差分格式的系数
     elif i == 1 and x_0 == -1:
-        t1.calculate_f_prime_with_one_side_nodes_fdm(isplot=1)
-        t1.calculate_f_prime_with_one_side_nodes_fdm(isplot=2)
+        t1.calculate_f_prime_with_one_side_nodes_fdm(1)
+        t1.calculate_f_prime_with_one_side_nodes_fdm(2)
         # 绘制 f'(x = -1) 及与解析值的误差随 h 变化的图像
         # 包括 3 节点模板和 5 节点模板的有限差分格式，以及解析形式的导数
     elif i == 1 and x_0 == 0:
-        t1.calculate_f_prime_with_symmetric_nodes_fdm(isplot=1)
-        t1.calculate_f_prime_with_symmetric_nodes_fdm(isplot=2)
+        t1.calculate_f_prime_with_symmetric_nodes_fdm(1)
+        t1.calculate_f_prime_with_symmetric_nodes_fdm(2)
         # 绘制 f'(x = 0) 及与解析值的误差随 h 变化的图像
         # 包括 3 节点模板和 5 节点模板的有限差分格式，以及解析形式的导数
     elif i == 2:
@@ -194,4 +194,4 @@ def run_file(i, x_0):
         # 绘制双对数图，以计算 f'(x) 的误差阶数，选取步长范围为 0.0001 到 0.0101，步长为 0.01
 
 
-run_file(6)
+run_file(1,-1)
