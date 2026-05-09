@@ -18,7 +18,6 @@ def solve_coefficient():
 
     print(c)
 
-# solve_coefficient()
 
 
 def plot_error_for_fdm(isplot: int = 1, h_array: np.ndarray = np.linspace(0.05,1.05,101)):
@@ -45,7 +44,7 @@ def plot_error_for_fdm(isplot: int = 1, h_array: np.ndarray = np.linspace(0.05,1
         f_prime5[i] = (-25*f(x0) + 48*f(x1) - 36*f(x2) + 16*f(x3) - 3*f(x4))/(12*h)
     
     # plot error-h figure
-    if isplot:
+    if isplot == 1:
         plt.plot(h_array, f_prime3, label='3-point')
         plt.plot(h_array, f_prime5, label='5-point')
         plt.plot(h_array, f_prime_analytical, label='analytical')
@@ -53,10 +52,17 @@ def plot_error_for_fdm(isplot: int = 1, h_array: np.ndarray = np.linspace(0.05,1
         plt.ylabel('f_prime')
         plt.legend()
         plt.savefig('result.png')
+    elif isplot == 2:
+        plt.plot(h_array, abs(f_prime3 - f_prime_analytical), label='3-point')
+        plt.plot(h_array, abs(f_prime5 - f_prime_analytical), label='5-point')
+        plt.xlabel('h')
+        plt.ylabel('error')
+        plt.legend()
+        plt.savefig('error.png')
+
 
     return h_array, f_prime3, f_prime5, f_prime_analytical
 
-# plot_error_for_fdm()
 
 def calculate_order_of_accuracy_for_fdm(h_array):
     h_array, f_prime3, f_prime5, f_prime_analytical = plot_error_for_fdm(0, h_array)
@@ -78,11 +84,36 @@ def calculate_order_of_accuracy_for_fdm(h_array):
     plt.legend()
     plt.savefig('order_of_accuracy %.4f %.4f.png' % (h_array[0], h_array[len(h_array)-1]))
 
-h_array = np.linspace(0.05,1.05,101)
-calculate_order_of_accuracy_for_fdm(h_array)
-h_array = np.linspace(0.01,0.51,101)
-calculate_order_of_accuracy_for_fdm(h_array)
-h_array = np.linspace(0.001,0.101,101)
-calculate_order_of_accuracy_for_fdm(h_array)
-h_array = np.linspace(0.0001,0.0101,101)
-calculate_order_of_accuracy_for_fdm(h_array)
+
+
+
+def run_file(i):
+    if i == 0:
+        solve_coefficient()
+        # 计算 5 节点模板的差分格式的系数
+    elif i == 1:
+        plot_error_for_fdm(isplot=1)
+        # 绘制 f'(x = -1) 随 h 变化的图像
+        # 包括 3 节点模板和 5 节点模板的有限差分格式，以及解析形式的导数
+    elif i == 2:
+        plot_error_for_fdm(isplot=2)
+        # 绘制误差随 h 变化的图像
+    elif i == 3:
+        h_array = np.linspace(0.05,1.05,101)
+        calculate_order_of_accuracy_for_fdm(h_array)
+        # 绘制双对数图，以计算误差阶数，选取步长范围为 0.05 到 1.05，步长为 0.01
+    elif i == 4:
+        h_array = np.linspace(0.01,0.51,101)
+        calculate_order_of_accuracy_for_fdm(h_array)
+        # 绘制双对数图，以计算误差阶数，选取步长范围为 0.01 到 0.51，步长为 0.005
+    elif i == 5:
+        h_array = np.linspace(0.001,0.101,101)
+        calculate_order_of_accuracy_for_fdm(h_array)
+        # 绘制双对数图，以计算误差阶数，选取步长范围为 0.001 到 0.101，步长为 0.01
+    elif i == 6:
+        h_array = np.linspace(0.0001,0.0101,101)
+        calculate_order_of_accuracy_for_fdm(h_array)
+        # 绘制双对数图，以计算误差阶数，选取步长范围为 0.0001 到 0.0101，步长为 0.01
+
+
+run_file(6)
