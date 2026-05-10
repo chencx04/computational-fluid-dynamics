@@ -199,6 +199,80 @@ def run_file(i, x_0):
         t1.calculate_order_of_accuracy_for_fdm(h_array = h_array, x0 = x_0)
         # 绘制双对数图，以计算 f'(x) 的误差阶数，选取步长范围为 0.0001 到 0.0101，步长为 0.01
 
+
+class Task3():
+    def __init__(self):
+        pass
+
+    def solve_equation(self, m, l, nt):
+        # m+1 为 x 方向的网格数，l 为网格比 λ, nt+1 为时间步数, 求解总时间为 τ*nt
+        # x
+        x = np.linspace(0,2*np.pi,m+1)
+
+        # 初始化自变量 u
+        u = np.zeros((nt+1,m+1))
+        # 求解 nt 个时间步长
+        for i in range(nt+1):
+            # 求解 u[i,:]
+            if i == 0:
+                u[i,:] = np.sin(x)
+            else:
+                for j in range(m+1):
+                    if j !=0 :
+                        u[i,j] = u[i-1,j] * (1-l) + u[i-1,j-1] * l
+                u[i,0] = u[i,m]
+        return u
+    
+    def plot_u(self, u, l, m, nt, fps):
+        x = np.linspace(0,2*np.pi,m+1)
+        u = self.solve_equation(m, l, nt)
+
+        # 画动图
+        plt.close('all')
+        fig, ax = plt.subplots()
+        
+        # 设置坐标轴范围，防止动图跳动
+        ax.set_xlim(0, 2 * np.pi)
+        # ax.set_ylim(-1, 1)
+
+        # 绘制初始时刻的速度
+        ax.plot(x, u[0,:], linewidth = 1.5, color='black')
+        ax.set_xlabel('x')
+        ax.set_ylabel('u(x,t)')
+        ax.set_title(r'u(t), $\lambda$ = %.2f, h = %.3f, M = %d, T = %d$\tau$' % (l, 2*np.pi/m, m, nt))
+
+        line, = ax.plot([], [], linewidth = 1)
+        line2, = ax.plot([], [], '--', linewidth=1)
+
+
+        def update_plot(time, u, line, line2):
+            # 更新绘制的数据，形成动图
+            line.set_data(x, u[time, :])
+            line2.set_data(x,np.sin(x-time*2*np.pi/len(x)*l))
+            ax.set_ylim(min(min(u[time, :]),-1), max(max(u[time, :]),1))
+            return line, line2,
+
+        ani = FuncAnimation(fig, update_plot, frames=nt, fargs=(u, line, line2), interval=20, blit=True)
+        ani.save('u(t)_with_lambda=%.2f.gif' % l, writer='pillow', fps=fps)
+
+
+def run_file_3(l):
+    t3 = Task3()
+    # 步长 h =2*pi/m
+    if l == 1.1:
+        u = t3.solve_equation(m=180, l=1.1, nt=400)
+        t3.plot_u(u=u, l=l, m=180, nt=400, fps=30)
+    elif l == 1.0:
+        u = t3.solve_equation(m=90, l=1.0, nt=1000)
+        t3.plot_u(u=u, l=l, m=90, nt=1000, fps=30)
+    elif l == 0.5:
+        u = t3.solve_equation(m=180, l=0.5, nt=100)
+        t3.plot_u(u=u, l=l, m=180, nt=100, fps=30)
+    elif l == 0.2:
+        u = t3.solve_equation(m=90, l=0.2, nt=2000)
+        t3.plot_u(u=u, l=l, m=90, nt=2000, fps=5)
+
+
 # 运行得到第1题的所有结果
 # for i in range(7):
 #     if i == 0:
@@ -211,57 +285,6 @@ def run_file(i, x_0):
 # run_file(i=2,x_0=0)
 
 
-class Task3():
-    def __init__(self):
-        pass
-
-    def solve_equation(self, m, l, nt):
-        # m+1 为 x 方向的网格数，l 为网格比 λ, nt 为时间步数
-        # x
-        x = np.linspace(0,2*np.pi,m+1)
-        # Au = b
-        # 构造系数矩阵 A
-        a = np.zeros((m+1,m+1))
-        for j in range(m+1):
-            if j == 0:
-                a[j,j] = 1
-                a[j,m] = -1
-            else:
-                a[j,j]=1-l
-                a[j,j-1]=l
-        
-        # n=0 时的 b
-        b = np.sin(x)
-        b[0] = 0
-
-        # 初始化自变量 u
-        u = np.zeros((nt,m+1))
-        # 求解 1000 个时间步长
-        for i in range(nt):
-            # 求解 u[i,:]
-            if i == 0:
-                u[i,:] = np.sin(x)
-            else:
-                b = u[i-1,:]
-                b[0] = 0
-                u[i,:] = np.linalg.solve(a,b)
-
-        # 画图
-        plt.close('all')
-        plt.plot(x,u[0,:],label='t=0')
-        for i in range(nt):
-            if i%100 == 0 and i!=0:
-                plt.plot(x,u[i,:],label=r't = %d $\tau$' % i)
-        plt.xlabel('x')
-        plt.ylabel('u')
-        plt.title(r'h = %.2f, $\lambda$ = %.1f' % (2*np.pi/m,l))
-        plt.legend()
-        plt.savefig('result_task3.png')
-
-
-
-t3 = Task3()
-# 步长 h =2*pi/m
-t3.solve_equation(m=90, l=2, nt=1000)
+run_file_3(l=0.2)
 
 
