@@ -264,13 +264,13 @@ def run_file_3(l):
         t3.plot_u(u=u, l=l, m=180, nt=400, fps=30)
     elif l == 1.0:
         u = t3.solve_equation(m=90, l=1.0, nt=1000)
-        t3.plot_u(u=u, l=l, m=90, nt=1000, fps=30)
+        t3.plot_u(u=u, l=l, m=90, nt=4000, fps=30)
     elif l == 0.5:
         u = t3.solve_equation(m=180, l=0.5, nt=100)
-        t3.plot_u(u=u, l=l, m=180, nt=100, fps=30)
+        t3.plot_u(u=u, l=l, m=180, nt=2000, fps=200)
     elif l == 0.2:
         u = t3.solve_equation(m=90, l=0.2, nt=2000)
-        t3.plot_u(u=u, l=l, m=90, nt=2000, fps=5)
+        t3.plot_u(u=u, l=l, m=90, nt=2000, fps=200)
 
 
 # 运行得到第1题的所有结果
@@ -284,7 +284,7 @@ def run_file_3(l):
 # 运行得到特定的结果
 # run_file(i=2,x_0=0)
 
-
-run_file_3(l=0.2)
+# 输入不同的 λ 值，运行得到第3题的结果
+run_file_3(l=1.0)
 
 
