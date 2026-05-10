@@ -49,6 +49,7 @@ class Task1():
 
         # plot error-h figure
         if isplot == 1:
+            plt.close('all')
             plt.plot(h_array, f_prime3, label='3-point')
             plt.plot(h_array, f_prime5, label='5-point')
             plt.plot(h_array, f_prime_analytical, label='analytical')
@@ -58,6 +59,7 @@ class Task1():
             plt.title('x = -1')
             plt.savefig('result_x=-1.png')
         elif isplot == 2:
+            plt.close('all')
             plt.plot(h_array, abs(f_prime3 - f_prime_analytical), label='3-point')
             plt.plot(h_array, abs(f_prime5 - f_prime_analytical), label='5-point')
             plt.xlabel('h')
@@ -91,9 +93,10 @@ class Task1():
             # 3 节点模板的有限差分格式
             f_prime3[i] = (f(x1) -f(x_1))/(2*h)
             # 5 节点模板的有限差分格式
-            f_prime5[i] = (8*f(x1) - f(x2) - 8*f(x_1) + f(x_2))/(14*h)
+            f_prime5[i] = (8*f(x1) - f(x2) - 8*f(x_1) + f(x_2))/(12*h)
         
         # plot error-h figure
+        plt.close('all')
         if isplot == 1:
             plt.plot(h_array, f_prime3, label='3-point')
             plt.plot(h_array, f_prime5, label='5-point')
@@ -152,11 +155,10 @@ class Task1():
             plt.plot(h_array, abs(f_prime5_0 - f_prime_analytical_0), label='5-point, x = 0')
             plt.xlabel('h')
             plt.ylabel('error')
+            plt.yscale('log')
             plt.title('error of f_prime with different x0')
             plt.legend()
-            plt.savefig('error_of_f_prime_with_different_x0.png')
-            plt.ylim(0,10)
-            plt.savefig('error_of_f_prime_with_different_x0_zoom.png')
+
 
  
 t1 = Task1()
@@ -197,12 +199,12 @@ def run_file(i, x_0):
         # 绘制双对数图，以计算 f'(x) 的误差阶数，选取步长范围为 0.0001 到 0.0101，步长为 0.01
 
 # 运行得到第1题的所有结果
-for i in range(7):
-    if i == 0:
-        pass
-    else:
-        for x_0 in [-1, 0]:
-            run_file(i=i, x_0=x_0)
+# for i in range(7):
+#     if i == 0:
+#         pass
+#     else:
+#         for x_0 in [-1, 0]:
+#             run_file(i=i, x_0=x_0)
 
 # 运行得到特定的结果
-# run_file(i=2,x_0=0)
+run_file(i=2,x_0=0)
