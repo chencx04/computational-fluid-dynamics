@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 from scipy import stats
 
 class Task1():
@@ -198,6 +199,80 @@ def run_file(i, x_0):
         t1.calculate_order_of_accuracy_for_fdm(h_array = h_array, x0 = x_0)
         # 绘制双对数图，以计算 f'(x) 的误差阶数，选取步长范围为 0.0001 到 0.0101，步长为 0.01
 
+
+class Task3():
+    def __init__(self):
+        pass
+
+    def solve_equation(self, m, l, nt):
+        # m+1 为 x 方向的网格数，l 为网格比 λ, nt+1 为时间步数, 求解总时间为 τ*nt
+        # x
+        x = np.linspace(0,2*np.pi,m+1)
+
+        # 初始化自变量 u
+        u = np.zeros((nt+1,m+1))
+        # 求解 nt 个时间步长
+        for i in range(nt+1):
+            # 求解 u[i,:]
+            if i == 0:
+                u[i,:] = np.sin(x)
+            else:
+                for j in range(m+1):
+                    if j !=0 :
+                        u[i,j] = u[i-1,j] * (1-l) + u[i-1,j-1] * l
+                u[i,0] = u[i,m]
+        return u
+    
+    def plot_u(self, u, l, m, nt, fps):
+        x = np.linspace(0,2*np.pi,m+1)
+        u = self.solve_equation(m, l, nt)
+
+        # 画动图
+        plt.close('all')
+        fig, ax = plt.subplots()
+        
+        # 设置坐标轴范围，防止动图跳动
+        ax.set_xlim(0, 2 * np.pi)
+        # ax.set_ylim(-1, 1)
+
+        # 绘制初始时刻的速度
+        ax.plot(x, u[0,:], linewidth = 1.5, color='black')
+        ax.set_xlabel('x')
+        ax.set_ylabel('u(x,t)')
+        ax.set_title(r'u(t), $\lambda$ = %.2f, h = %.3f, M = %d, T = %d$\tau$' % (l, 2*np.pi/m, m, nt))
+
+        line, = ax.plot([], [], linewidth = 1)
+        line2, = ax.plot([], [], '--', linewidth=1)
+
+
+        def update_plot(time, u, line, line2):
+            # 更新绘制的数据，形成动图
+            line.set_data(x, u[time, :])
+            line2.set_data(x,np.sin(x-time*2*np.pi/len(x)*l))
+            ax.set_ylim(min(min(u[time, :]),-1), max(max(u[time, :]),1))
+            return line, line2,
+
+        ani = FuncAnimation(fig, update_plot, frames=nt, fargs=(u, line, line2), interval=20, blit=True)
+        ani.save('u(t)_with_lambda=%.2f.gif' % l, writer='pillow', fps=fps)
+
+
+def run_file_3(l):
+    t3 = Task3()
+    # 步长 h =2*pi/m
+    if l == 1.1:
+        u = t3.solve_equation(m=180, l=1.1, nt=400)
+        t3.plot_u(u=u, l=l, m=180, nt=400, fps=30)
+    elif l == 1.0:
+        u = t3.solve_equation(m=90, l=1.0, nt=1000)
+        t3.plot_u(u=u, l=l, m=90, nt=4000, fps=30)
+    elif l == 0.5:
+        u = t3.solve_equation(m=180, l=0.5, nt=100)
+        t3.plot_u(u=u, l=l, m=180, nt=2000, fps=200)
+    elif l == 0.2:
+        u = t3.solve_equation(m=90, l=0.2, nt=2000)
+        t3.plot_u(u=u, l=l, m=90, nt=2000, fps=200)
+
+
 # 运行得到第1题的所有结果
 # for i in range(7):
 #     if i == 0:
@@ -207,4 +282,9 @@ def run_file(i, x_0):
 #             run_file(i=i, x_0=x_0)
 
 # 运行得到特定的结果
-run_file(i=2,x_0=0)
+# run_file(i=2,x_0=0)
+
+# 输入不同的 λ 值，运行得到第3题的结果
+run_file_3(l=1.0)
+
+
