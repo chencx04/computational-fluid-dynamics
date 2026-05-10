@@ -246,34 +246,22 @@ class Task3():
                 b[0] = 0
                 u[i,:] = np.linalg.solve(a,b)
 
-        # 画动态图
+        # 画图
         plt.close('all')
-        fig, ax = plt.subplots()
-        
-        # 设置坐标轴范围，防止动图跳动
-        ax.set_xlim(0, 2 * np.pi)
-        # ax.set_ylim(-1, 1)
-
-        # 绘制初始时刻的速度
-        ax.plot(x, u[0,:], linewidth = 1.5, color='black', label='t=0')
-        ax.legend()
-
-        line, = ax.plot([], [], linewidth = 1)
-
-
-        def update_plot(time, u, line):
-            # 更新绘制的数据，形成动图
-            print('time = %d' % time)
-            line.set_ydata(u[time,:])
-            return line,
-
-        ani = FuncAnimation(fig, update_plot, frames=nt, fargs=(u, line), interval=20, blit=True)
-        ani.save('u(t)_with_lambda=%.2f.gif' % l, writer='pillow', fps=30)
+        plt.plot(x,u[0,:],label='t=0')
+        for i in range(nt):
+            if i%100 == 0 and i!=0:
+                plt.plot(x,u[i,:],label=r't = %d $\tau$' % i)
+        plt.xlabel('x')
+        plt.ylabel('u')
+        plt.title(r'h = %.2f, $\lambda$ = %.1f' % (2*np.pi/m,l))
+        plt.legend()
+        plt.savefig('result_task3.png')
 
 
 
 t3 = Task3()
 # 步长 h =2*pi/m
-t3.solve_equation(m=180, l=1.1, nt=10)
+t3.solve_equation(m=90, l=2, nt=1000)
 
 
