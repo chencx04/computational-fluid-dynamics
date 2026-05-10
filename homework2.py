@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 from scipy import stats
 
 class Task1():
@@ -207,4 +208,72 @@ def run_file(i, x_0):
 #             run_file(i=i, x_0=x_0)
 
 # 运行得到特定的结果
-run_file(i=2,x_0=0)
+# run_file(i=2,x_0=0)
+
+
+class Task3():
+    def __init__(self):
+        pass
+
+    def solve_equation(self, m, l, nt):
+        # m+1 为 x 方向的网格数，l 为网格比 λ, nt 为时间步数
+        # x
+        x = np.linspace(0,2*np.pi,m+1)
+        # Au = b
+        # 构造系数矩阵 A
+        a = np.zeros((m+1,m+1))
+        for j in range(m+1):
+            if j == 0:
+                a[j,j] = 1
+                a[j,m] = -1
+            else:
+                a[j,j]=1-l
+                a[j,j-1]=l
+        
+        # n=0 时的 b
+        b = np.sin(x)
+        b[0] = 0
+
+        # 初始化自变量 u
+        u = np.zeros((nt,m+1))
+        # 求解 1000 个时间步长
+        for i in range(nt):
+            # 求解 u[i,:]
+            if i == 0:
+                u[i,:] = np.sin(x)
+            else:
+                b = u[i-1,:]
+                b[0] = 0
+                u[i,:] = np.linalg.solve(a,b)
+
+        # 画动态图
+        plt.close('all')
+        fig, ax = plt.subplots()
+        
+        # 设置坐标轴范围，防止动图跳动
+        ax.set_xlim(0, 2 * np.pi)
+        # ax.set_ylim(-1, 1)
+
+        # 绘制初始时刻的速度
+        ax.plot(x, u[0,:], linewidth = 1.5, color='black', label='t=0')
+        ax.legend()
+
+        line, = ax.plot([], [], linewidth = 1)
+
+
+        def update_plot(time, u, line):
+            # 更新绘制的数据，形成动图
+            print('time = %d' % time)
+            line.set_ydata(u[time,:])
+            return line,
+
+        ani = FuncAnimation(fig, update_plot, frames=nt, fargs=(u, line), interval=20, blit=True)
+        ani.save('u(t)_with_lambda=%.2f.gif' % l, writer='pillow', fps=30)
+
+
+
+t3 = Task3()
+# 步长 h =2*pi/m
+t3.solve_equation(m=180, l=1.1, nt=10)
+
+
