@@ -245,14 +245,17 @@ class Task3():
         line2, = ax.plot([], [], '--', linewidth=1)
 
 
-        def update_plot(time, u, line, line2):
+        def update_plot(time, u, line, line2, l, m):
             # 更新绘制的数据，形成动图
+            # 从时间步到真实时间
+            t = time * l * 2*np.pi/m
             line.set_data(x, u[time, :])
-            line2.set_data(x,np.sin(x-time*2*np.pi/len(x)*l))
+            if l <= 1:
+                line2.set_data(x,np.sin(x-t))
             ax.set_ylim(min(min(u[time, :]),-1), max(max(u[time, :]),1))
             return line, line2,
 
-        ani = FuncAnimation(fig, update_plot, frames=nt, fargs=(u, line, line2), interval=20, blit=True)
+        ani = FuncAnimation(fig, update_plot, frames=nt, fargs=(u, line, line2, l, m), interval=20, blit=True)
         ani.save('u(t)_with_lambda=%.2f.gif' % l, writer='pillow', fps=fps)
 
 
@@ -285,6 +288,6 @@ def run_file_3(l):
 # run_file(i=2,x_0=0)
 
 # 输入不同的 λ 值，运行得到第3题的结果
-run_file_3(l=1.0)
+run_file_3(l=0.2)
 
 
