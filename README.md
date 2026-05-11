@@ -22,7 +22,7 @@
 
 &emsp;&emsp;&emsp;&emsp;order_of_accuracy_x0 =  $x_0$  $h_{min}$  $h_{max}$.png
 
-&emsp;&emsp;&emsp;&emsp;其中， $x_0$ 为计算时选取的点， $h_{min}$ ， $h_{max}$ 分布为选取的网格尺寸的最小值和最大值
+&emsp;&emsp;&emsp;&emsp;其中， $x_0$ 为计算时选取的点， $h_{min}$ ， $h_{max}$ 分别为选取的网格尺寸的最小值和最大值
 
 &emsp;&emsp;对流方程差分格式解的稳定性、数值耗散误差与相位误差
 
@@ -35,7 +35,6 @@
 python 版本：Python 3.13.12
 
 运行依赖的包：
-&emsp;&emsp;name            version
 
 &emsp;&emsp;matplotlib      3.10.9
 
@@ -50,11 +49,13 @@ python 版本：Python 3.13.12
 
 说明：由于我是在 wsl 系统上完成代码运行，没有实时的图像窗口，生成的所有图像都将以 .png 或 .gif 的格式保存下来。
 
+运行时，需将需要的代码取消注释，并注释掉其他不需要的代码后，运行文件 homework2.py。
+
 1、第 1 题
 
 &emsp;&emsp;取消 288 - 293 行的注释，注释掉 299 行，运行文件 homework2.py，可得到第1题有关的所有图片。
 
-&emsp;&emsp;若想得到特定的某一张图片，可通过运行第 296 行被注释掉的代码，$i$ 指示生成图片的类型，$x\_0$ 指示选取的坐标点。
+&emsp;&emsp;若想得到特定的某一张图片，可通过运行第 296 行被注释掉的代码， $i$ 指示生成图片的类型， $x\_0$ 指示选取的坐标点。
 
 &emsp;&emsp;&emsp;&emsp; $i$ = 0:
 
@@ -70,10 +71,19 @@ python 版本：Python 3.13.12
 
 &emsp;&emsp;&emsp;&emsp; $i$ = 3 - 6:
 
-&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;绘制差分格式误差和网格尺寸的双对数图，以计算差分格式的误差阶数，选取网格尺寸的范围及步长依次是： 0.05 到 1.05，步长为 0.01；0.01 到 0.51，步长为 0.005；0.001 到 0.101，步长为 0.01；0.0001 到 0.0101，步长为 0.01
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;绘制差分格式误差和网格尺寸的双对数图，以计算差分格式的误差阶数，
+
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;选取网格尺寸的范围及步长依次是： 
+
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; $i$ = 3：0.05 到 1.05，步长为 0.01；
+
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; $i$ = 4：0.01 到 0.51，步长为 0.005；
+
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; $i$ = 5：0.001 到 0.101，步长为 0.01；
+
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; $i$ = 6：0.0001 到 0.0101，步长为 0.01
 
 2、第3题
 
 &emsp;&emsp;相关运行代码为第 299 行， $l$ 代表网格比  $\lambda = \tau/h$ ，通过指定 $l$ = 1.1，1.0，0.5，0.2，可分别得到第3题的图片，图片保存为 .gif 格式。
     
-        
