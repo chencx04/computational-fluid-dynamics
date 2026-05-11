@@ -225,7 +225,8 @@ class Task3():
     
     def plot_u(self, u, l, m, nt, fps):
         x = np.linspace(0,2*np.pi,m+1)
-        u = self.solve_equation(m, l, nt)
+        if u is None:
+            u = self.solve_equation(m, l, nt)
 
         # 画动图
         plt.close('all')
@@ -266,14 +267,21 @@ def run_file_3(l):
         u = t3.solve_equation(m=180, l=1.1, nt=400)
         t3.plot_u(u=u, l=l, m=180, nt=400, fps=30)
     elif l == 1.0:
-        u = t3.solve_equation(m=90, l=1.0, nt=1000)
-        t3.plot_u(u=u, l=l, m=90, nt=4000, fps=30)
+        m, nt, fps = 100, 400, 24
+        u = t3.solve_equation(m=m, l=1.0, nt=nt)
+        t3.plot_u(u=u, l=l, m=m, nt=nt, fps=fps)
+        print('FDM:u(x=0,T) = %.4e, real: %.4e' % (u[nt,0], np.sin(0-nt*l/m*2*np.pi)))
     elif l == 0.5:
-        u = t3.solve_equation(m=180, l=0.5, nt=100)
-        t3.plot_u(u=u, l=l, m=180, nt=2000, fps=200)
+        m, nt, fps = 160, 1280, 30
+        u = t3.solve_equation(m=m, l=0.5, nt=nt)
+        t3.plot_u(u=u, l=l, m=m, nt=nt, fps=fps)
+        print('FDM:u(x=0,T) = %.4e, real: %.4e' % (u[nt,0], np.sin(0-nt*l/m*2*np.pi)))
+   
     elif l == 0.2:
-        u = t3.solve_equation(m=90, l=0.2, nt=2000)
-        t3.plot_u(u=u, l=l, m=90, nt=2000, fps=200)
+        m, nt, fps = 100, 2500, 35
+        u = t3.solve_equation(m=m, l=0.2, nt=nt)
+        t3.plot_u(u=u, l=l, m=m, nt=nt, fps=fps)
+        print('FDM:u(x=0,T) = %.4f, real: %.4f' % (u[nt,0], np.sin(0-nt*l/m*2*np.pi)))
 
 
 # 运行得到第1题的所有结果
@@ -288,6 +296,6 @@ def run_file_3(l):
 # run_file(i=2,x_0=0)
 
 # 输入不同的 λ 值，运行得到第3题的结果
-run_file_3(l=0.2)
+run_file_3(l=1.0)
 
 
