@@ -45,7 +45,7 @@ python 版本：Python 3.13.12
 &emsp;&emsp;scipy           1.17.1
 
 ### 编译运行说明
-直接运行文件 $calculate_equation.py$ 即可
+直接运行文件 calculate_equation.py 即可
 
 说明：代码不会弹出实时的图像窗口，生成的所有图像都将以 .png 或 .gif 的格式保存下来。
 
