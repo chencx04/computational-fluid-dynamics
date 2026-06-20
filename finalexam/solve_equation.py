@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 # 用一阶向前欧拉格式求解守恒形一维欧拉方程
 # 已知 n 时刻的解 u_n (包含虚拟点)，求解 n+1 时刻的解 u_n+1
 def get_next_state(u_n, flux, lam, num):
-    # 得到包含边界外虚拟点的 u_n ，共 num + 6 个点
-    u_n_next = np.zeros((num + 6, 3))
+    # 得到包含边界外虚拟点的 u_n ，共 num + 7 个点
+    u_n_next = np.zeros((num + 7, 3))
     for i in range(num + 1):
         # 需要计算的点为 u_n_next[3] - u_n_next[num + 3]
         # 求解 x_i 处的值 u_n_next[j] = u_n_next[i + 3]
@@ -18,6 +18,7 @@ def get_next_state(u_n, flux, lam, num):
     u_n_next[2] = u_n_next[3]
     u_n_next[num + 4] = u_n_next[num + 3]
     u_n_next[num + 5] = u_n_next[num + 3]
+    u_n_next[num + 6] = u_n_next[num + 3]
     return u_n_next
 
 # 子模板内插值公式 p_k(x_j+1/2)
@@ -94,13 +95,13 @@ flux_phy = lambda u: np.array([u[1], 0.8 * u[1] ** 2 / u[0] + 0.4 * u[2], 1.4 * 
 
 # 得到数值通量
 def get_flux_num(u, num, eps, switch):
-    # u 为 num + 6 个 3 维向量，包括边界外虚拟点
+    # u 为 num + 7 个 3 维向量，包括边界外虚拟点
     # switch = 1 时，使用 Lax-Friedrichs 格式
     # switch = 2 时，使用 Steger-Warming 格式
     if switch == 1:
         lam_star = get_lambda_star(u[3:num + 4], num)
-    flux_phy_plus = np.zeros((num + 6, 3)) # 物理正通量在格点处的值
-    flux_phy_minus = np.zeros((num + 6, 3)) # 物理负通量在格点处的值
+    flux_phy_plus = np.zeros((num + 7, 3)) # 物理正通量在格点处的值
+    flux_phy_minus = np.zeros((num + 7, 3)) # 物理负通量在格点处的值
     flux_plus = np.zeros((num + 2, 3)) # 数值正通量
     flux_minus = np.zeros((num + 2, 3)) # 数值负通量
     for i in range(num + 1):
@@ -130,11 +131,13 @@ def get_flux_num(u, num, eps, switch):
     flux_phy_plus[0] = flux_phy_plus[3]
     flux_phy_plus[1] = flux_phy_plus[3]
     flux_phy_plus[2] = flux_phy_plus[3]
+    flux_phy_plus[num + 6] = flux_phy_plus[num + 3]
     flux_phy_plus[num + 5] = flux_phy_plus[num + 3]
     flux_phy_plus[num + 4] = flux_phy_plus[num + 3]
     flux_phy_minus[0] = flux_phy_minus[3]
     flux_phy_minus[1] = flux_phy_minus[3]
     flux_phy_minus[2] = flux_phy_minus[3]
+    flux_phy_minus[num + 6] = flux_phy_minus[num + 3]
     flux_phy_minus[num + 5] = flux_phy_minus[num + 3]
     flux_phy_minus[num + 4] = flux_phy_minus[num + 3]
     for i in range(num + 2):
@@ -151,9 +154,9 @@ def get_flux_num(u, num, eps, switch):
 
 
 def solve_equation(num, eps, lam, switch, nt):
-    u = np.zeros((num + 6, 3))
-    u_next = np.zeros((num + 6, 3))
-    u_initial = np.zeros((num + 6, 3))
+    u = np.zeros((num + 7, 3))
+    u_next = np.zeros((num + 7, 3))
+    u_initial = np.zeros((num + 7, 3))
     for n in range(nt + 1):
         if n == 0:
             for j in range(num + 1):
@@ -165,6 +168,7 @@ def solve_equation(num, eps, lam, switch, nt):
             u[0] = u[3]
             u[1] = u[3]
             u[2] = u[3]
+            u[num + 6] = u[num + 3]
             u[num + 5] = u[num + 3]
             u[num + 4] = u[num + 3]
             u_initial = u
