@@ -123,7 +123,7 @@ def get_flux_num(u, num, eps, switch):
             lam_matrix_abs = np.array([[np.abs(v - c), 0, 0], [0, np.abs(v), 0], [0, 0, np.abs(v + c)]])
             lam_plus = 0.5 * (lam_matrix + lam_matrix_abs)
             lam_minus = 0.5 * (lam_matrix - lam_matrix_abs)
-            l = 0.2 / c ** 2 * np.array([[0.5 * v ** 2 + v * c / 0.4, - v - c / 0.4, 1], [-0.5 * v ** 2 + v * c / 0.4, v, -1], [0.5 * v ** 2 - v * c / 0.4, - v + c / 0.4, 1]])
+            l = 0.2 / c ** 2 * np.array([[0.5 * v ** 2 + v * c / 0.4, - v - c / 0.4, 1], [- v ** 2 + 2 * c ** 2 / 0.4, 2 * v, -2], [0.5 * v ** 2 - v * c / 0.4, - v + c / 0.4, 1]])
             l_inv = np.linalg.inv(l)
             flux_phy_plus[i + 3] = l_inv @ lam_plus @ l @ u_curr
             flux_phy_minus[i + 3] = l_inv @ lam_minus @ l @ u_curr
@@ -204,8 +204,8 @@ def compare(num, eps, lam, nt):
     # plt.savefig('rho(x,t).png')
     plt.show()
 
-num = 51 # num 为奇数，则不会有格点位于间断点 0.5
-eps = 1.0e-5
+num = 101 # num 为奇数，则不会有格点位于间断点 0.5
+eps = 1.0e-10
 nt = 100
-lam = 0.8
+lam = 0.01
 compare(num, eps, lam, nt)
