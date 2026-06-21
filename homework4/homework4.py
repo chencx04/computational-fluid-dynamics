@@ -19,7 +19,6 @@ def solve_u_star_and_v_star(alpha, num, u, v):
 def solve_pressure_equation(alpha, num, u_star, v_star):
     h = 2 / num
     b = np.zeros(num + 1, dtype=complex)
-    b[0] = 1.0
     a_matrix = np.zeros((num + 1, num + 1), dtype=complex)
     a_matrix[0, 0] = 1
     a_matrix[num, num] = 1
@@ -94,21 +93,21 @@ def solve_equation(alpha, num, re, nt):
             v_initial = v_next
     return u, v, p
 
-def get_dissipation(u, v, p, num, nt, x, alpha):
-    dissipation_u = np.zeros((nt + 1, num - 1))
-    dissipation_v = np.zeros((nt + 1, num - 1))
-    dissipation_p = np.zeros((nt + 1, num - 1))
+def get_disturbance(u, v, p, num, nt, x, alpha):
+    disturbance_u = np.zeros((nt + 1, num - 1))
+    disturbance_v = np.zeros((nt + 1, num - 1))
+    disturbance_p = np.zeros((nt + 1, num - 1))
     for n in range(nt + 1):
         for j in range(num - 1):
-            dissipation_u[n, j] = abs(u[n, j + 1] * np.exp(1j * alpha * x))
-            dissipation_v[n, j] = abs(v[n, j + 1] * np.exp(1j * alpha * x))
-            dissipation_p[n, j] = abs(p[n, j + 1] * np.exp(1j * alpha * x))
-    return dissipation_u, dissipation_v, dissipation_p
+            disturbance_u[n, j] = abs(u[n, j + 1] * np.exp(1j * alpha * x))
+            disturbance_v[n, j] = abs(v[n, j + 1] * np.exp(1j * alpha * x))
+            disturbance_p[n, j] = abs(p[n, j + 1] * np.exp(1j * alpha * x))
+    return disturbance_u, disturbance_v, disturbance_p
 
 x = 1.0
 alpha = 1.0
 num = 200
-nt = 100
+nt = 10000
 re1 = 5000
 re2 = 6000
 re3 = 7000
@@ -116,40 +115,61 @@ re3 = 7000
 u1, v1, p1 = solve_equation(alpha, num, re1, nt)
 u2, v2, p2 = solve_equation(alpha, num, re2, nt)
 u3, v3, p3 = solve_equation(alpha, num, re3, nt)
-dissipation_u1, dissipation_v1, dissipation_p1 = get_dissipation(u1, v1, p1, num, nt, x, alpha)
-dissipation_u2, dissipation_v2, dissipation_p2 = get_dissipation(u2, v2, p2, num, nt, x, alpha)
-dissipation_u3, dissipation_v3, dissipation_p3 = get_dissipation(u3, v3, p3, num, nt, x, alpha)
+disturbance_u1, disturbance_v1, disturbance_p1 = get_disturbance(u1, v1, p1, num, nt, x, alpha)
+disturbance_u2, disturbance_v2, disturbance_p2 = get_disturbance(u2, v2, p2, num, nt, x, alpha)
+disturbance_u3, disturbance_v3, disturbance_p3 = get_disturbance(u3, v3, p3, num, nt, x, alpha)
+
+# 处理数据，避免对数坐标报错
+def process_data(data):
+    min_data = np.min(data)
+    data = np.where(data == 0, max(1e-10 * min_data, 1e-30), data)
+    return data
+
+disturbance_u1 = process_data(disturbance_u1)
+disturbance_v1 = process_data(disturbance_v1)
+disturbance_p1 = process_data(disturbance_p1)
+disturbance_u2 = process_data(disturbance_u2)
+disturbance_v2 = process_data(disturbance_v2)
+disturbance_p2 = process_data(disturbance_p2)
+disturbance_u3 = process_data(disturbance_u3)
+disturbance_v3 = process_data(disturbance_v3)
+disturbance_p3 = process_data(disturbance_p3)
 
 y = np.zeros(num - 1)
 for j in range(num - 1):
     y[j] = (j + 1) * (2 / num) - 1
 
 # 绘制动图
-fig, ax = plt.subplots()
-lines = [
-    ax.plot([], [], label='re = 5000')[0],
-    ax.plot([], [], label='re = 6000')[0],
-    ax.plot([], [], label='re = 7000')[0]
-]
-ax.set_xlim(-1, 1)
-ax.set_ylim(np.min([dissipation_u1.min(), dissipation_u2.min(), dissipation_u3.min()]), 
-            np.max([dissipation_u1.max(), dissipation_u2.max(), dissipation_u3.max()]))
-ax.set_xlabel('y')
-ax.set_ylabel('dissipation')
-ax.set_title('dissipation of u')
-ax.set_yscale('log')
-ax.legend()
+def plot_disturbance(y, data1, data2, data3, title):
+    fig, ax = plt.subplots()
+    lines = [
+        ax.plot([], [], label='re = 5000')[0],
+        ax.plot([], [], label='re = 6000')[0],
+        ax.plot([], [], label='re = 7000')[0]
+    ]
+    ax.set_xlim(-1, 1)
+    ax.set_ylim(np.min([data1.min(), data2.min(), data3.min()]), 
+                np.max([data1.max(), data2.max(), data3.max()]))
+    ax.set_xlabel('y')
+    ax.set_ylabel('disturbance')
+    ax.set_title(title)
+    ax.set_yscale('log')
+    ax.legend()
 
-def animate(frame):
-    for l, data in zip(
-        lines, 
-        [dissipation_u1, dissipation_u2, dissipation_u3]
-    ):
-        l.set_data(y, data[frame, :])
-    ax.set_title(f'dissipation of u (t = {frame})')
-    return lines
+    def animate(frame):
+        for l, data in zip(
+            lines, 
+            [data1, data2, data3]
+        ):
+            l.set_data(y, data[frame, :])
+        ax.set_title(f'{title} (t = {frame * dt:.2f})')
+        return lines
 
-ani = animation.FuncAnimation(
-    fig, animate, frames=range(0, nt+1, 10), interval=500, blit=False
-)
-plt.show()
+    ani = animation.FuncAnimation(
+        fig, animate, frames=range(0, nt+1, 50), interval=100, blit=False
+    )
+    ani.save(f'{title}.gif', writer='pillow', fps=10)
+
+plot_disturbance(y, disturbance_u1, disturbance_u2, disturbance_u3, 'disturbance of u')
+plot_disturbance(y, disturbance_v1, disturbance_v2, disturbance_v3, 'disturbance of v')
+plot_disturbance(y, disturbance_p1, disturbance_p2, disturbance_p3, 'disturbance of p')
