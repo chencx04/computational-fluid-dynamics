@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 # 用一阶向前欧拉格式求解守恒形一维欧拉方程
 # 已知 n 时刻的解 u_n (包含虚拟点)，求解 n+1 时刻的解 u_n+1
 def get_next_state(u_n, flux, lam, num):
-    # 得到包含边界外虚拟点的 u_n ，共 num + 7 个点
-    u_n_next = np.zeros((num + 7, 3))
+    # u_n 为当前时刻的速度，包含边界外虚拟点，共 num + 7 个点 （ num + 1 个真实格点，6个虚拟点 ）
+    u_n_next = np.zeros((num + 7, 3)) # 下一时刻的速度
     for i in range(num + 1):
         # 需要计算的点为 u_n_next[3] - u_n_next[num + 3]
         # 求解 x_i 处的值 u_n_next[j] = u_n_next[i + 3]
@@ -123,7 +123,10 @@ def get_flux_num(u, num, eps, switch):
             lam_matrix_abs = np.array([[np.abs(v - c), 0, 0], [0, np.abs(v), 0], [0, 0, np.abs(v + c)]])
             lam_plus = 0.5 * (lam_matrix + lam_matrix_abs)
             lam_minus = 0.5 * (lam_matrix - lam_matrix_abs)
-            l = 0.2 / c ** 2 * np.array([[0.5 * v ** 2 + v * c / 0.4, - v - c / 0.4, 1], [- v ** 2 + 2 * c ** 2 / 0.4, 2 * v, -2], [0.5 * v ** 2 - v * c / 0.4, - v + c / 0.4, 1]])
+            l = 0.2 / c ** 2 * np.array([
+                [0.5 * v ** 2 + v * c / 0.4, - v - c / 0.4, 1], 
+                [- v ** 2 + 2 * c ** 2 / 0.4, 2 * v, -2], 
+                [0.5 * v ** 2 - v * c / 0.4, - v + c / 0.4, 1]])
             l_inv = np.linalg.inv(l)
             flux_phy_plus[i + 3] = l_inv @ lam_plus @ l @ u_curr
             flux_phy_minus[i + 3] = l_inv @ lam_minus @ l @ u_curr
@@ -178,11 +181,65 @@ def solve_equation(num, eps, lam, switch, nt):
             u = u_next
     return u_initial, u
 
+def solve_equation_analytical(num, lam, nt):
+    cl = np.sqrt(1.4)
+    cr = np.sqrt(1.4 * 0.8)
+    u_star = 0.92745 # 近似值
+    c_star_l = 0.99772 # 近似值
+    p_star = 0.30313 # 近似值
+    x_head = 0.5 - cl * nt * lam * (1 / num)
+    x_foot = 0.5 + (u_star - c_star_l) * nt * lam * (1 / num)
+    x_cd = 0.5 + u_star * nt * lam * (1 / num)
+    x_shock = 0.5 + cr * np.sqrt(1 + 6 / 7 * (p_star / 0.1 - 1)) * nt * lam * (1 / num)
+    x = np.zeros(num + 1)
+    rho = np.zeros(num + 1)
+    u = np.zeros(num + 1)
+    p = np.zeros(num + 1)
+    for j in range(num + 1):
+        x[j] = j / num
+        if x[j] < x_head:
+            rho[j] = 1
+            u[j] = 0
+            p[j] = 1
+        elif x[j] <= x_foot:
+            u[j] = (cl + (x[j] - 0.5) / (nt * lam / num)) / 1.2
+            c = cl - 0.2 * u[j]
+            rho[j] = (c ** 2 / 1.4)**2.5
+            p[j] = rho[j] * c ** 2 / 1.4
+        elif x[j] < x_cd:
+            rho[j] = 0.42632
+            u[j] = 0.92745
+            p[j] = 0.30313
+        elif x[j] < x_shock:
+            rho[j] = 0.26557
+            u[j] = 0.92745
+            p[j] = 0.30313
+        else:
+            rho[j] = 0.125
+            u[j] = 0
+            p[j] = 0.1
+    return rho, u, p
+
 def get_quantity(u):
     rho = u[3:num + 4,0]
     v = u[3:num + 4,1] / u[3:num + 4,0]
     p = (1.4 - 1) * (u[3:num + 4,2] - 0.5 * u[3:num + 4,1] ** 2 / u[3:num + 4,0])
     return rho, v, p
+
+def plot_compare(x, data1, data2, data3, nt, ylabel):
+    # 绘制多个解的对比图
+    plt.close('all')
+    plt.plot(x, data1, label='Lax-Friedrichs')
+    plt.plot(x, data2, label='Steger-Warming')
+    plt.plot(x, data3, label='analytical')
+    plt.xlabel('x')
+    plt.ylabel(ylabel)
+    plt.title('%s(x,t), t = %d' % (ylabel, nt))
+    plt.legend()
+    plt.savefig('%s(x,t).png' % ylabel)
+    plt.xlim(0.4, 0.6)
+    plt.savefig('%s(x,t)_xlim.png' % ylabel)
+
 
 def compare(num, eps, lam, nt):
     u_initial, u_LaxFriedrichs = solve_equation(num, eps, lam, 1, nt)
@@ -190,22 +247,18 @@ def compare(num, eps, lam, nt):
     rho_LaxFriedrichs, v_LaxFriedrichs, p_LaxFriedrichs = get_quantity(u_LaxFriedrichs)
     rho_StegerWarming, v_StegerWarming, p_StegerWarming = get_quantity(u_StegerWarming)
     rho_initial, v_initial, p_initial = get_quantity(u_initial)
+    rho_analytical, v_analytical, p_analytical = solve_equation_analytical(num, lam, nt)
     # 横坐标
     x = np.zeros(num + 1)
     for j in range(num + 1):
         x[j] = j / num
-    plt.plot(x, rho_LaxFriedrichs, label='Lax-Friedrichs')
-    plt.plot(x, rho_StegerWarming, label='Steger-Warming')
-    plt.plot(x, rho_initial, label='initial')
-    plt.xlabel('x')
-    plt.ylabel('rho')
-    plt.title('rho(x,t)')
-    plt.legend()
-    # plt.savefig('rho(x,t).png')
-    plt.show()
+    plot_compare(x, rho_LaxFriedrichs, rho_StegerWarming, rho_analytical, nt, 'rho')
+    plot_compare(x, v_LaxFriedrichs, v_StegerWarming, v_analytical, nt, 'v')
+    plot_compare(x, p_LaxFriedrichs, p_StegerWarming, p_analytical, nt, 'p')
 
 num = 101 # num 为奇数，则不会有格点位于间断点 0.5
+          # h = 0.01
 eps = 1.0e-10
 nt = 100
-lam = 0.01
+lam = 0.1 # CFL 数, tau = 1.0e-3
 compare(num, eps, lam, nt)
