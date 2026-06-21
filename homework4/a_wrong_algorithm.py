@@ -1,3 +1,5 @@
+# 2026-06-21 这是一个错误的算法，具体可参见文件 a_wrong_algorithm.docx
+
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
@@ -76,6 +78,7 @@ def solve_equation(alpha, num, re, nt):
     for j in range(num + 1):
         y = j * h - 1
         u_initial[j] = 1.0e-5 * (1 - y**2) * (1 + y)
+        u_initial[j] = 1.0e-5 * (1 - y**2) * (y)
     for n in range(nt + 1):
         if n == 0:
             u[n, :] = u_initial
@@ -107,10 +110,13 @@ def get_disturbance(u, v, p, num, nt, x, alpha):
 x = 1.0
 alpha = 1.0
 num = 200
-nt = 10000
+nt = 5000
 re1 = 5000
 re2 = 6000
 re3 = 7000
+# re3 = 1e60
+# re2 = 1030
+
 
 u1, v1, p1 = solve_equation(alpha, num, re1, nt)
 u2, v2, p2 = solve_equation(alpha, num, re2, nt)
@@ -170,6 +176,33 @@ def plot_disturbance(y, data1, data2, data3, title):
     )
     ani.save(f'{title}.gif', writer='pillow', fps=10)
 
-plot_disturbance(y, disturbance_u1, disturbance_u2, disturbance_u3, 'disturbance of u')
-plot_disturbance(y, disturbance_v1, disturbance_v2, disturbance_v3, 'disturbance of v')
-plot_disturbance(y, disturbance_p1, disturbance_p2, disturbance_p3, 'disturbance of p')
+# 速度扰动的幅值随时间变化
+def plot_disturbance_amplitude(u, v, num, nt, re):
+    h = 2 / num
+    t = np.zeros(nt + 1)
+    disturbance_amplitude = np.zeros(nt + 1)
+    for n in range(nt + 1):
+        disturbance_amplitude[n] = np.sqrt(np.sum(abs(u[n, :])**2 + abs(v[n, :])**2)) * h
+        t[n] = n * dt
+    return t, disturbance_amplitude
+
+
+
+# plot_disturbance(y, disturbance_u1, disturbance_u2, disturbance_u3, 'disturbance of u')
+# plot_disturbance(y, disturbance_v1, disturbance_v2, disturbance_v3, 'disturbance of v')
+# plot_disturbance(y, disturbance_p1, disturbance_p2, disturbance_p3, 'disturbance of p')
+
+t, disturbance_amplitude1 = plot_disturbance_amplitude(u1, v1, num, nt, re1)
+_, disturbance_amplitude2 = plot_disturbance_amplitude(u2, v2, num, nt, re2)
+_, disturbance_amplitude3 = plot_disturbance_amplitude(u3, v3, num, nt, re3)
+plt.close('all')
+plt.plot(t, disturbance_amplitude1, label=f'Re = {re1}')
+plt.plot(t, disturbance_amplitude2, label=f'Re = {re2}')
+plt.plot(t, disturbance_amplitude3, label=f'Re = {re3}')
+plt.xlabel('t')
+plt.ylabel('disturbance amplitude')
+plt.legend()
+plt.yscale('log')
+plt.title('disturbance amplitude vs time')
+# plt.savefig('disturbance_amplitude_vs_time.png')
+plt.show()
