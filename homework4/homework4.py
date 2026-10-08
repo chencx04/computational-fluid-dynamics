@@ -84,7 +84,7 @@ def get_disturbance(u, v, num, nt, x, alpha):
 
 x = 1.0
 alpha = 1.0
-num = 101
+num = 100
 nt = 100000
 re1 = 5000
 re2 = 6000
